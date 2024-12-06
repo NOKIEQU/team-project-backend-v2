@@ -96,6 +96,7 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
   try {
+    console.log(req.params.id);
     await prisma.product.delete({
       where: { id: req.params.id },
     });

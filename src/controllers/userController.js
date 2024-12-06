@@ -15,11 +15,11 @@ exports.register = async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 8);
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'Avatar is required' });
-    }
+    // if (!req.file) {
+    //   return res.status(400).json({ error: 'Avatar is required' });
+    // }
 
-    const avatarPath = `/images/avatars/${req.file.filename}`;
+    // const avatarPath = `/images/avatars/${req.file.filename}`;
 
     const user = await prisma.user.create({
       data: {
@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
         lastName,
         email,
         password: hashedPassword,
-        avatar: avatarPath,
+        avatar: "",
       },
     });
 
@@ -49,6 +49,7 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    delete user.password;
 
     res.json({ user, token });
   } catch (error) {
