@@ -7,7 +7,7 @@ const userController = require('../controllers/userController');
 const { adminAuth } = require('../middleware/auth');
 
 
-router.post('/register', upload.single('avatar'), [
+router.post('/register', [
   body('firstName').notEmpty(),
   body('lastName').notEmpty(),
   body('email').isEmail(),
