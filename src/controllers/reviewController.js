@@ -16,14 +16,13 @@ exports.createReview = async (req, res) => {
       data: {
         content,
         rating,
-        userId: req.user.id,
-        productId,
+        userId: req.user.id, 
       },
     });
 
     res.status(201).json(review);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: 'Something went wrong.' }); 
   }
 };
 
@@ -36,7 +35,7 @@ exports.getProductReviews = async (req, res) => {
 
     res.json(reviews);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Something went wrong.' });
   }
 };
 
@@ -44,18 +43,22 @@ exports.updateReview = async (req, res) => {
   try {
     const { content, rating } = req.body;
 
-    const review = await prisma.review.update({
+    const review = await prisma.review.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!review || review.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized to update this review' });
+    }
+
+    const updatedReview = await prisma.review.update({
       where: { id: req.params.id },
       data: { content, rating },
     });
 
-    if (review.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Not authorized to update this review' });
-    }
-
-    res.json(review);
+    res.json(updatedReview);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: 'Something went wrong.' });
   }
 };
 
@@ -75,7 +78,6 @@ exports.deleteReview = async (req, res) => {
 
     res.json({ message: 'Review deleted successfully' });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: 'Something went wrong.' });
   }
 };
-
