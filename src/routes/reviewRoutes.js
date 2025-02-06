@@ -1,23 +1,29 @@
 const express = require('express');
-const { body, param } = require('express-validator'); // Import param validator
+const { body } = require('express-validator');
 const reviewController = require('../controllers/reviewController');
-const { auth } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Users post review
 router.post('/:productId', auth, [
-  body('content').notEmpty().withMessage('Content is required'),
-  body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
-  body('productId').notEmpty().withMessage('Product ID is required'), // Ensure productId is provided, even though we use the param
-  param('productId').isString().withMessage('Product ID must be a valid string'), // Validate productId in URL
+  body('content').notEmpty().withMessage('Please write something about this product before submitting.'),
+  body('rating').isInt({ min: 1, max: 5 }).withMessage('Please give a rating between 1 and 5 stars.'),
 ], reviewController.createReview);
 
-router.get('/:productId', [
-  param('productId').isString().withMessage('Product ID must be a valid string'),
-], reviewController.getProductReviews);
+// Gets reviews for product
+router.get('/:productId', reviewController.getProductReviews);
 
-router.patch('/:id', auth, reviewController.updateReview);
+// Edit a review
+router.patch('/edit/:id', auth, reviewController.updateReview);
 
-router.delete('/:id', auth, reviewController.deleteReview);
+// Upvote or downvote a review
+router.patch('/vote/:id', auth, reviewController.voteReview);
+
+// Users delete their own reviews
+router.delete('/delete/:id', auth, reviewController.deleteReview);
+
+// Admins delete any review
+router.delete('/admin/delete/:id', adminAuth, reviewController.adminDeleteReview);
 
 module.exports = router;
