@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
-
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // Get Full Order List
 exports.getOrderList = async (_req, res) => {
