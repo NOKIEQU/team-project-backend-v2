@@ -30,21 +30,30 @@ enum Role {
   ADMIN
 }
 
+enum AgeRatings {
+  THREE
+  SEVEN
+  TWELVE
+  SIXTEEN
+  EIGHTEEN
+}
+
 model Product {
-  id          String      @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
-  description String      @db.Text
-  price       Decimal     @db.Decimal(10, 2)
+  description String  @db.Text
+  price       Decimal @db.Decimal(10, 2)
   imageUrls   Json
-  rating      Decimal     @db.Decimal(3, 2)
+  rating      Decimal @db.Decimal(3, 2)
   releaseYear Int
   genreId     String
-  genre       Genre       @relation(fields: [genreId], references: [id], onDelete: Cascade)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
-  reviews     Review[]
+  genre      Genre       @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  ageRating AgeRatings @default(THREE)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+  reviews    Review[]
 }
 
 model Genre {
