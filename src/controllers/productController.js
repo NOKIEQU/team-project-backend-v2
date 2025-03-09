@@ -41,6 +41,10 @@ exports.createProduct = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
+  if (req?.files?.length === 0) {
+    return res.status(400).json({ errors: 'Please upload at least one image' });
+  }
+
   try {
     const { title, description, price, rating, releaseYear, genreId } =
       req.body;
@@ -56,10 +60,6 @@ exports.createProduct = async (req, res) => {
         genreId,
       },
     });
-
-    if (req?.files?.length === 0) {
-      return res.status(201).json(product);
-    }
 
     const productImageDir = path.join(
       rootDir,
