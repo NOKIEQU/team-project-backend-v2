@@ -1,7 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 const { validationResult } = require('express-validator');
+const path = require('path');
+const fs = require('fs');
 
 const prisma = new PrismaClient();
+
+const rootDir = path.resolve('./');
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -38,23 +42,49 @@ exports.createProduct = async (req, res) => {
   }
 
   try {
-    const { title, description, price, rating, releaseYear, genreId } = req.body;
-
-    const imageUrls = req.files ? req.files.map(file => `/images/products/${file.filename}`) : [];
+    const { title, description, price, rating, releaseYear, genreId } =
+      req.body;
 
     const product = await prisma.product.create({
       data: {
         title,
         description,
         price: parseFloat(price),
-        imageUrls: JSON.stringify(imageUrls),
+        imageUrls: [],
         rating: parseFloat(rating),
         releaseYear: parseInt(releaseYear),
         genreId,
       },
     });
 
-    res.status(201).json(product);
+    if (req?.files?.length === 0) {
+      return res.status(201).json(product);
+    }
+
+    const productImageDir = path.join(
+      rootDir,
+      'public',
+      'images',
+      product.id.toString()
+    );
+    fs.mkdirSync(productImageDir, { recursive: true });
+
+    const imageUrls = [];
+
+    // Move uploaded images to specific product ID directory
+    req.files.forEach((file) => {
+      const imagePath = path.join(productImageDir, file.filename);
+      fs.renameSync(file.path, imagePath);
+      imageUrls.push(`/images/${product.id}/${file.filename}`);
+    });
+
+    // Update product with image paths
+    const updatedProduct = await prisma.product.update({
+      where: { id: product.id },
+      data: { imageUrls },
+    });
+
+    res.status(201).json(updatedProduct);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -67,7 +97,8 @@ exports.updateProduct = async (req, res) => {
   }
 
   try {
-    const { title, description, price, rating, releaseYear, genreId } = req.body;
+    const { title, description, price, rating, releaseYear, genreId } =
+      req.body;
 
     let updateData = {
       title,
@@ -79,7 +110,9 @@ exports.updateProduct = async (req, res) => {
     };
 
     if (req.files && req.files.length > 0) {
-      const imageUrls = req.files.map(file => `/images/products/${file.filename}`);
+      const imageUrls = req.files.map(
+        (file) => `/images/products/${file.filename}`
+      );
       updateData.imageUrls = JSON.stringify(imageUrls);
     }
 
@@ -106,4 +139,3 @@ exports.deleteProduct = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
