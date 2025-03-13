@@ -46,6 +46,7 @@ model Product {
   imageUrls   Json
   rating      Decimal @db.Decimal(3, 2)
   releaseYear Int
+  developer   String
   genreId     String
   genre      Genre       @relation(fields: [genreId], references: [id], onDelete: Cascade)
   ageRating AgeRatings @default(THREE)
