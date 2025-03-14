@@ -9,7 +9,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const genreRoutes = require('./routes/genreRoutes');
-
+const inventoryRoutes = require('./routes/inventory'); 
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -24,7 +24,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
 app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
@@ -35,6 +34,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/genres', genreRoutes);
+app.use('/api/inventory', inventoryRoutes); 
 
 // Error handling middleware
 app.use(errorHandler);
@@ -48,4 +48,3 @@ process.on('SIGINT', async () => {
   await prisma.$disconnect();
   process.exit();
 });
-

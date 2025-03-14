@@ -38,6 +38,12 @@ enum AgeRatings {
   EIGHTEEN
 }
 
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
 model Product {
   id          String  @id @default(cuid())
   title       String
@@ -55,6 +61,9 @@ model Product {
   orderItems OrderItem[]
   cartItems  CartItem[]
   reviews    Review[]
+  stock       Int       @default(0)
+  stockStatus StockStatus @default(IN_STOCK)
+  inventoryLogs InventoryLog[]
 }
 
 model Genre {
@@ -84,6 +93,22 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Decimal @db.Decimal(10, 2)
+}
+
+enum InventoryChangeType {
+  STOCK_ADDED
+  STOCK_REMOVED
+  ORDER_PLACED
+  ORDER_CANCELLED
+}
+
+model InventoryLog {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  changeType InventoryChangeType
+  quantity  Int
+  createdAt DateTime @default(now())
 }
 
 enum OrderStatus {
