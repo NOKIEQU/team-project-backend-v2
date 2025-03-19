@@ -12,7 +12,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const genreRoutes = require('./routes/genreRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const questionnaireRoutes = require('./routes/questionnaireRoutes');
-const inventoryRoutes = require('./routes/inventory'); 
+const inventoryRoutes = require('./routes/inventoryRoutes'); 
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
