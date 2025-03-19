@@ -44,7 +44,7 @@ exports.getProductReviews = async (req, res) => {
   try {
     const reviews = await prisma.review.findMany({
       where: { productId: req.params.productId },
-      include: { user: { select: { id: true, name: true } } }, 
+      include: { user: { select: { id: true, firstName: true, lastName: true } } }, 
     });
 
     res.json(reviews);

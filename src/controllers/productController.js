@@ -38,7 +38,13 @@ exports.createProduct = async (req, res) => {
   }
 
   try {
-    const { title, description, price, rating, releaseYear, genreId } = req.body;
+    const { title, description, price, rating, releaseYear, genreId, ageRating } = req.body;
+
+    // Validate ageRating
+    const validAgeRatings = ["THREE", "SEVEN", "TWELVE", "SIXTEEN", "EIGHTEEN"];
+    if (!validAgeRatings.includes(ageRating)) {
+      return res.status(400).json({ error: "Invalid age rating. Use: THREE, SEVEN, TWELVE, SIXTEEN, EIGHTEEN." });
+    }
 
     const imageUrls = req.files ? req.files.map(file => `/images/products/${file.filename}`) : [];
 
@@ -51,6 +57,7 @@ exports.createProduct = async (req, res) => {
         rating: parseFloat(rating),
         releaseYear: parseInt(releaseYear),
         genreId,
+        ageRating, // Added ageRating field
       },
     });
 
@@ -67,7 +74,7 @@ exports.updateProduct = async (req, res) => {
   }
 
   try {
-    const { title, description, price, rating, releaseYear, genreId } = req.body;
+    const { title, description, price, rating, releaseYear, genreId, ageRating } = req.body;
 
     let updateData = {
       title,
@@ -77,6 +84,15 @@ exports.updateProduct = async (req, res) => {
       releaseYear: releaseYear ? parseInt(releaseYear) : undefined,
       genreId,
     };
+
+    // Validate ageRating if provided
+    if (ageRating) {
+      const validAgeRatings = ["THREE", "SEVEN", "TWELVE", "SIXTEEN", "EIGHTEEN"];
+      if (!validAgeRatings.includes(ageRating)) {
+        return res.status(400).json({ error: "Invalid age rating. Use: THREE, SEVEN, TWELVE, SIXTEEN, EIGHTEEN." });
+      }
+      updateData.ageRating = ageRating;
+    }
 
     if (req.files && req.files.length > 0) {
       const imageUrls = req.files.map(file => `/images/products/${file.filename}`);
@@ -106,4 +122,3 @@ exports.deleteProduct = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
