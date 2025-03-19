@@ -28,6 +28,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
 // Routes
