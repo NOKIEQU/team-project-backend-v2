@@ -11,18 +11,19 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
-  email     String   @unique
-  password  String
-  avatar    String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
-  reviews   Review[]
-  cart      Cart?
+  id            String         @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String         @unique
+  password      String
+  avatar        String?
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  orders        Order[]
+  reviews       Review[]
+  cart          Cart?
+  Questionnaire Questionnaire?
 }
 
 enum Role {
@@ -30,12 +31,29 @@ enum Role {
   ADMIN
 }
 
+
 enum AgeRatings {
   THREE
   SEVEN
   TWELVE
   SIXTEEN
   EIGHTEEN
+  }
+
+
+enum GamePlayPreference {
+  SinglePlayer
+  MultiPlayer
+}
+
+model Questionnaire {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isAdult            Boolean
+  gamePlayPreference GamePlayPreference
+  favoriteGenres     Genre[]
+
 }
 
 model Product {
@@ -57,11 +75,13 @@ model Product {
 }
 
 model Genre {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String         @id @default(cuid())
+  name            String         @unique
+  products        Product[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  questionnaire   Questionnaire? @relation(fields: [questionnaireId], references: [id])
+  questionnaireId String?
 }
 
 model Order {

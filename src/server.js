@@ -6,9 +6,12 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const adminOrderRoutes = require('./routes/adminOrderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const genreRoutes = require('./routes/genreRoutes');
+const checkoutRoutes = require('./routes/checkoutRoutes');
+const questionnaireRoutes = require('./routes/questionnaireRoutes');
 
 const errorHandler = require('./middleware/errorHandler');
 
@@ -35,6 +38,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/genres', genreRoutes);
+app.use('/api/checkout', checkoutRoutes);
+app.use('/api/questionnaire', questionnaireRoutes);
+// Admin Routes
+app.use('/api/admin/orders', adminOrderRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
@@ -48,4 +55,3 @@ process.on('SIGINT', async () => {
   await prisma.$disconnect();
   process.exit();
 });
-
