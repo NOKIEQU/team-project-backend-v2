@@ -21,12 +21,32 @@ exports.createOrder = async (req, res) => {
         return res.status(404).json({ error: `Product with id ${item.productId} not found` });
       }
 
+      if (product.stock < item.quantity) {
+        return res.status(400).json({ error: `Not enough stock for ${product.title}. Only ${product.stock} left.` });
+      }
+
       totalPrice += product.price * item.quantity;
 
       createdOrderItems.push({
         productId: item.productId,
         quantity: item.quantity,
         price: product.price,
+      });
+
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          stock: { decrement: item.quantity },
+          stockStatus: product.stock - item.quantity <= 0 ? 'OUT_OF_STOCK' : 'IN_STOCK',
+        },
+      });
+
+      await prisma.inventoryLog.create({
+        data: {
+          productId: item.productId,
+          changeType: 'ORDER_PLACED',
+          quantity: item.quantity,
+        },
       });
     }
 
@@ -100,14 +120,42 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
-    const order = await prisma.order.update({
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+      include: { orderItems: true },
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    if (status === 'CANCELLED') {
+      for (const item of order.orderItems) {
+        await prisma.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: { increment: item.quantity },
+            stockStatus: 'IN_STOCK',
+          },
+        });
+
+        await prisma.inventoryLog.create({
+          data: {
+            productId: item.productId,
+            changeType: 'ORDER_CANCELLED',
+            quantity: item.quantity,
+          },
+        });
+      }
+    }
+
+    const updatedOrder = await prisma.order.update({
       where: { id: req.params.id },
       data: { status },
     });
 
-    res.json(order);
+    res.json(updatedOrder);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
-

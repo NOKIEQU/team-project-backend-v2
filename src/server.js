@@ -12,7 +12,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const genreRoutes = require('./routes/genreRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const questionnaireRoutes = require('./routes/questionnaireRoutes');
-
+const inventoryRoutes = require('./routes/inventory'); 
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -27,7 +27,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
 app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
@@ -42,6 +41,7 @@ app.use('/api/checkout', checkoutRoutes);
 app.use('/api/questionnaire', questionnaireRoutes);
 // Admin Routes
 app.use('/api/admin/orders', adminOrderRoutes);
+app.use('/api/inventory', inventoryRoutes); 
 
 // Error handling middleware
 app.use(errorHandler);
