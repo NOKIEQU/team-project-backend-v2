@@ -117,7 +117,7 @@ exports.uploadAvatar = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, role: true, avatar: true },
+      select: { id: true, firstName: true, lastName: true, email: true, role: true, createdAt: true },
     });
     res.json(users);
   } catch (error) {
