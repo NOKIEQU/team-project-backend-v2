@@ -44,7 +44,9 @@ exports.getProduct = async (req, res) => {
     // Convert relative image paths to full URLs
     const productWithFullUrls = {
       ...product,
-      imageUrls: product.imageUrls.map(url => `http://${serverAddress}${url}`)
+      imageUrls: product.imageUrls.map(url => 
+      url.startsWith("http://51.77.110.253:3003") ? url : `http://${serverAddress}${url}`
+      )
     };
 
     res.json(productWithFullUrls);
