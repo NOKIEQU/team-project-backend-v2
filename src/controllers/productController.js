@@ -20,7 +20,9 @@ exports.getAllProducts = async (req, res) => {
     const productsWithFullUrls = products.map(product => {
       return {
         ...product,
-        imageUrls: product.imageUrls.map(url => `http://${serverAddress}${url}`)
+        imageUrls: product.imageUrls.map(url => 
+          url.startsWith("http://51.77.110.253:3003") ? url : `http://${serverAddress}${url}`
+          )
       };
     });
     
