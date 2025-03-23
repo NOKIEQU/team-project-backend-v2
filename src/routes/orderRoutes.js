@@ -14,6 +14,7 @@ router.post('/', auth, [
 router.get('/', auth, orderController.getOrders);
 router.get('/:id', auth, orderController.getOrder);
 router.patch('/:id/status', auth, orderController.updateOrderStatus);
+router.delete('/:id', auth, orderController.deleteOrder);
 
 module.exports = router;
 

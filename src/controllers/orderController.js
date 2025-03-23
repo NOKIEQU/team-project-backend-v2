@@ -159,3 +159,44 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.deleteOrder = async (req, res) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+      include: { orderItems: true },
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    
+
+    for (const item of order.orderItems) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: {
+          stock: { increment: item.quantity },
+          stockStatus: 'IN_STOCK',
+        },
+      });
+
+      await prisma.inventoryLog.create({
+        data: {
+          productId: item.productId,
+          changeType: 'ORDER_CANCELLED',
+          quantity: item.quantity,
+        },
+      });
+    }
+
+    await prisma.order.delete({
+      where: { id: req.params.id },
+    });
+
+    res.json({ message: 'Order deleted' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
