@@ -80,6 +80,26 @@ exports.getOrders = async (req, res) => {
             product: true,
           },
         },
+        user: true,
+      },
+    });
+
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAdminOrders = async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({
+      include: {
+        orderItems: {
+          include: {
+            product: true,
+          },
+        },
+        user: true,
       },
     });
 
