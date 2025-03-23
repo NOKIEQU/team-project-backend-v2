@@ -68,7 +68,7 @@ exports.updateProfile = async (req, res) => {
   }
 
   const updates = Object.keys(req.body);
-  const allowedUpdates = ['name', 'email', 'password'];
+  const allowedUpdates = ['firstName', "lastName", 'email', 'password'];
   const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
   if (!isValidOperation) {
