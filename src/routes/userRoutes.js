@@ -4,7 +4,7 @@ const { body } = require('express-validator');
 const multer = require('multer');
 const upload = multer();
 const userController = require('../controllers/userController');
-const { adminAuth } = require('../middleware/auth');
+const { adminAuth, auth } = require('../middleware/auth');
 
 
 router.post('/register', [
@@ -19,9 +19,12 @@ router.post('/login', [
   body('password'),
 ], userController.login);
 
+router.patch('/update', auth, userController.updateProfile);
+
 router.get('/all', adminAuth, userController.getAllUsers);
 router.patch('/:id', adminAuth, userController.updateUser);
 router.delete('/:id', adminAuth, userController.deleteUser);
 
 module.exports = router;
 
+ 

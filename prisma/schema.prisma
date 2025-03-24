@@ -11,18 +11,19 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
-  email     String   @unique
-  password  String
-  avatar    String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
-  reviews   Review[]
-  cart      Cart?
+  id            String         @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String         @unique
+  password      String
+  avatar        String?
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  orders        Order[]
+  reviews       Review[]
+  cart          Cart?
+  Questionnaire Questionnaire?
 }
 
 enum Role {
@@ -30,35 +31,73 @@ enum Role {
   ADMIN
 }
 
+
+enum AgeRatings {
+  THREE
+  SEVEN
+  TWELVE
+  SIXTEEN
+  EIGHTEEN
+  }
+
+
+enum GamePlayPreference {
+  SinglePlayer
+  MultiPlayer
+}
+
+model Questionnaire {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isAdult            Boolean
+  gamePlayPreference GamePlayPreference
+  favoriteGenres     Genre[]
+
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
 model Product {
-  id          String      @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
-  description String      @db.Text
-  price       Decimal     @db.Decimal(10, 2)
+  description String  @db.Text
+  price       Decimal @db.Decimal(10, 2)
   imageUrls   Json
-  rating      Decimal     @db.Decimal(3, 2)
+  rating      Decimal @db.Decimal(3, 2)
   releaseYear Int
+  developer   String @default("Unknown")
   genreId     String
-  genre       Genre       @relation(fields: [genreId], references: [id])
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
-  reviews     Review[]
+  genre      Genre       @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  ageRating AgeRatings @default(THREE)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+  reviews    Review[]
+  stock       Int       @default(0)
+  stockStatus StockStatus @default(IN_STOCK)
+  inventoryLogs InventoryLog[]
 }
 
 model Genre {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String         @id @default(cuid())
+  name            String         @unique
+  products        Product[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  questionnaire   Questionnaire? @relation(fields: [questionnaireId], references: [id])
+  questionnaireId String?
 }
 
 model Order {
   id         String      @id @default(cuid())
   userId     String
-  user       User        @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   status     OrderStatus
   totalPrice Decimal     @db.Decimal(10, 2)
   createdAt  DateTime    @default(now())
@@ -69,11 +108,27 @@ model Order {
 model OrderItem {
   id        String  @id @default(cuid())
   orderId   String
-  order     Order   @relation(fields: [orderId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Decimal @db.Decimal(10, 2)
+}
+
+enum InventoryChangeType {
+  STOCK_ADDED
+  STOCK_REMOVED
+  ORDER_PLACED
+  ORDER_CANCELLED
+}
+
+model InventoryLog {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  changeType InventoryChangeType
+  quantity  Int
+  createdAt DateTime @default(now())
 }
 
 enum OrderStatus {
@@ -105,6 +160,15 @@ model Cart {
   cartItems CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+model Contact {
+  id          String   @id @default(cuid())
+  name        String
+  email       String  
+  contactNumber String
+  message     String   @db.Text
+  createdAt   DateTime @default(now())
 }
 
 model CartItem {
